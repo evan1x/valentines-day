@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? 💝</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffe6e6;
+            font-family: 'Comic Sans MS', cursive;
+            overflow: hidden;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .container {
+            text-align: center;
+            padding: 6rem;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+            max-width: 50%;
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #ff4d79;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            position: relative;
+            height: 60px;
+            flex-wrap: wrap;
+            /* Ensure container has a higher z-index than content */
+            z-index: 1;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Comic Sans MS', cursive;
+            position: relative;
+            white-space: nowrap;
+            margin: 0.5rem;
+        }
+
+        #yesBtn {
+            background-color: #ff4d79;
+            color: white;
+            z-index: 1;
+            position: relative;
+        }
+
+        #noBtn {
+            background-color: #gray;
+            color: black;
+            position: relative;
+            transition: transform 0.3s ease, font-size 0.3s ease;
+            z-index: 2; /* Ensure no button stays on top */
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .hearts {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            animation: float 4s linear infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        .movie-picker {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .genre-button {
+            margin: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #ff8fab;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .movie-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #fff0f3;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+
+        /* Media Queries for Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+                max-width: 95%;
+                margin: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 1.5rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .buttons {
+                gap: 1rem;
+                height: auto;
+                margin-top: 1rem;
+            }
+
+            .genre-button {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.9rem;
+                margin: 0.3rem;
+            }
+
+            .movie-result {
+                padding: 0.8rem;
+            }
+
+            .movie-result p {
+                font-size: 1.2rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .genre-button {
+                padding: 0.4rem 0.7rem;
+                font-size: 0.8rem;
+            }
+
+            .movie-result p {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* Fix for small height screens */
+        @media (max-height: 600px) {
+            .container {
+                padding: 1rem;
+                margin: 0.5rem;
+            }
+
+            h1 {
+                margin-bottom: 1rem;
+            }
+
+            .buttons {
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts"></div>
+    <div class="container">
+        <h1>Will you be my Valentine Hannah? 💝🤨</h1>
+        <div class="buttons">
+            <button id="yesBtn">Yes! 💖</button>
+            <button id="noBtn">No 😢</button>
+        </div>
+        <div class="movie-picker" id="moviePicker">
+            <h2>Let's gooooo! Since we have issues choosing movies, lets pick a movie for our date! 🎬</h2>
+            <div>
+                <button class="genre-button" data-genre="romance">Romance</button>
+                <button class="genre-button" data-genre="comedy">Comedy</button>
+                <button class="genre-button" data-genre="action">Action</button>
+                <button class="genre-button" data-genre="horror">Horror</button>
+            </div>
+            <div class="movie-result" id="movieResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const movies = {
+            romance: [
+                "The Notebook", "La La Land", "Pride & Prejudice", "10 Things I Hate About You", "To All the Boys I've Loved Before",
+                "Eternal Sunshine of the Spotless Mind", "500 Days of Summer", "The Fault in Our Stars", "A Star is Born", "Me Before You",
+                "The Time Traveler's Wife", "About Time", "The Princess Bride", "Notting Hill", "Love Actually",
+                "Crazy, Stupid, Love", "The Big Sick", "Before Sunrise", "Before Sunset", "Before Midnight",
+                "Casablanca", "Romeo + Juliet", "The Vow", "Dear John", "P.S. I Love You",
+                "Titanic", "Pretty Woman", "Say Anything", "When We First Met", "One Day",
+                "The Age of Adaline", "Letters to Juliet", "Sweet Home Alabama", "A Walk to Remember", "The Lucky One",
+                "Safe Haven", "The Best of Me", "If I Stay", "Remember Me", "The Last Song",
+                "Valentine's Day", "New Year's Eve", "The Holiday", "Serendipity", "Sleepless in Seattle",
+                "You've Got Mail", "While You Were Sleeping", "Two Weeks Notice", "How to Lose a Guy in 10 Days", "13 Going on 30"
+            ],
+            comedy: [
+                "Bridesmaids", "The Proposal", "Crazy Rich Asians", "50 First Dates", "When Harry Met Sally",
+                "The Hangover", "Mean Girls", "Superbad", "Easy A", "21 Jump Street",
+                "Game Night", "Palm Springs", "The Other Guys", "Step Brothers", "Anchorman",
+                "Shaun of the Dead", "Hot Fuzz", "The Nice Guys", "Deadpool", "Wedding Crashers",
+                "The Heat", "Pitch Perfect", "Legally Blonde", "School of Rock", "Groundhog Day",
+                "The Devil Wears Prada", "Clueless", "The Breakfast Club", "Ferris Bueller's Day Off", "Dumb and Dumber",
+                "Zoolander", "Ace Ventura: Pet Detective", "Bruce Almighty", "The Mask", "Mrs. Doubtfire",
+                "Big", "The Princess Diaries", "Miss Congeniality", "She's the Man", "The Parent Trap",
+                "Freaky Friday", "Sister Act", "The Truman Show", "Liar Liar", "The Terminal",
+                "Night at the Museum", "Rush Hour", "Austin Powers", "The Interview", "This Is the End"
+            ],
+            action: [
+                "Mr. & Mrs. Smith", "True Lies", "Knight and Day", "The Lost City", "Date Night",
+                "Mission: Impossible - Fallout", "John Wick", "Mad Max: Fury Road", "Edge of Tomorrow", "Inception",
+                "The Matrix", "Die Hard", "Casino Royale", "Spider-Man: Into the Spider-Verse", "Wonder Woman",
+                "Black Panther", "Top Gun: Maverick", "The Dark Knight", "Raiders of the Lost Ark", "Jurassic Park",
+                "The Avengers", "Iron Man", "Captain America: Winter Soldier", "Thor: Ragnarok", "Guardians of the Galaxy",
+                "Mission: Impossible", "Fast Five", "Skyfall", "Black Widow", "Ant-Man",
+                "Doctor Strange", "Captain Marvel", "Aquaman", "The Suicide Squad", "Birds of Prey",
+                "Deadpool 2", "Logan", "X-Men: Days of Future Past", "Spider-Man: No Way Home", "Venom",
+                "Pacific Rim", "Godzilla vs. Kong", "The Mummy", "National Treasure", "Kingsman: The Secret Service",
+                "Baby Driver", "The Italian Job", "Ocean's Eleven", "The Bourne Identity", "Speed"
+            ],
+            horror: [
+                "A Quiet Place", "Bird Box", "Happy Death Day", "Ready or Not", "Warm Bodies",
+                "Get Out", "The Cabin in the Woods", "It Follows", "The Conjuring", "Insidious",
+                "The Babadook", "A Quiet Place Part II", "The Invisible Man", "Midsommar", "Hereditary",
+                "Train to Busan", "28 Days Later", "The Ring", "The Sixth Sense", "Scream",
+                "The Others", "Alien", "The Thing", "The Silence of the Lambs", "The Shining",
+                "Sinister", "The Witch", "Don't Breathe", "Split", "Us",
+                "Paranormal Activity", "The Blair Witch Project", "The Exorcist", "Halloween", "Nightmare on Elm Street",
+                "Friday the 13th", "Saw", "The Purge", "Candyman", "Poltergeist",
+                "The Descent", "World War Z", "I Am Legend", "Zombieland", "The Mist",
+                "1408", "The Grudge", "Final Destination", "Drag Me to Hell", "The Visit"
+            ]
+        };
+
+        // Track shown movies for each genre
+        const shownMovies = {
+            romance: new Set(),
+            comedy: new Set(),
+            action: new Set(),
+            horror: new Set()
+        };
+
+        let noButtonClickCount = 0;
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const moviePicker = document.getElementById('moviePicker');
+        const movieResult = document.getElementById('movieResult');
+
+        // Create floating hearts
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '💝';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.querySelector('.hearts').appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
+
+        setInterval(createHeart, 300);
+
+        noBtn.addEventListener('click', () => {
+            noButtonClickCount++;
+            const scale = 1 + (noButtonClickCount * 0.5);
+            
+            // Make the Yes button bigger
+            yesBtn.style.transform = `scale(${scale})`;
+            
+            // Move the No button away and make it smaller
+            const moveDistance = 20 * noButtonClickCount;
+            const randomAngle = Math.random() * 360; // Random angle in degrees
+            
+            // Ensure the button stays within viewport bounds
+            const maxX = window.innerWidth / 3;
+            const maxY = window.innerHeight / 3;
+            
+            let x = moveDistance * Math.cos(randomAngle * Math.PI / 180);
+            let y = moveDistance * Math.sin(randomAngle * Math.PI / 180);
+            
+            // Constrain the movement to stay within bounds
+            x = Math.max(Math.min(x, maxX), -maxX);
+            y = Math.max(Math.min(y, maxY), -maxY);
+            
+            noBtn.style.transform = `translate(${x}px, ${y}px) scale(${Math.max(0.5, 1 - noButtonClickCount * 0.1)})`;
+            
+            if (noButtonClickCount >= 5) {
+                noBtn.style.display = 'none';
+            }
+        });
+
+        yesBtn.addEventListener('click', () => {
+            document.querySelector('.buttons').style.display = 'none';
+            moviePicker.style.display = 'block';
+            // Create extra hearts for celebration
+            for(let i = 0; i < 20; i++) {
+                setTimeout(createHeart, i * 100);
+            }
+        });
+
+        function getRandomUnseenMovie(genre) {
+            const movieList = movies[genre];
+            const shown = shownMovies[genre];
+            
+            // If all movies have been shown, reset the shown list
+            if (shown.size >= movieList.length) {
+                shown.clear();
+            }
+            
+            // Get all unseen movies
+            const unseenMovies = movieList.filter(movie => !shown.has(movie));
+            
+            // Pick a random unseen movie
+            const randomMovie = unseenMovies[Math.floor(Math.random() * unseenMovies.length)];
+            
+            // Add it to shown movies
+            shown.add(randomMovie);
+            
+            return randomMovie;
+        }
+
+        document.querySelectorAll('.genre-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const genre = button.dataset.genre;
+                const randomMovie = getRandomUnseenMovie(genre);
+                const remainingCount = movies[genre].length - shownMovies[genre].size;
+                movieResult.innerHTML = `<h3>How about watching:</h3>
+                                       <p style="font-size: 1.5rem; color: #ff4d79;">${randomMovie}</p>
+                                       <p style="font-size: 0.9rem; color: #666;">${remainingCount} more movies available in this category</p>
+                                       <button onclick="pickAgain('${genre}')" style="margin-top: 1rem;">Pick Another ${genre.charAt(0).toUpperCase() + genre.slice(1)} Movie</button>`;
+            });
+        });
+
+        function pickAgain(genre) {
+            const randomMovie = getRandomUnseenMovie(genre);
+            const remainingCount = movies[genre].length - shownMovies[genre].size;
+            movieResult.innerHTML = `<h3>How about watching:</h3>
+                                   <p style="font-size: 1.5rem; color: #ff4d79;">${randomMovie}</p>
+                                   <p style="font-size: 0.9rem; color: #666;">${remainingCount} more movies available in this category</p>
+                                   <button onclick="pickAgain('${genre}')" style="margin-top: 1rem;">Pick Another ${genre.charAt(0).toUpperCase() + genre.slice(1)} Movie</button>`;
+        }
+    </script>
+</body>
+</html>
